@@ -1,31 +1,41 @@
-import { StyleSheet } from 'react-native';
+import { View, Text, ScrollView, RefreshControl } from 'react-native';
+import { useState, useCallback } from 'react';
+import { useUser } from '@clerk/clerk-expo';
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+export default function HomeScreen() {
+  const { user } = useUser();
+  const [refreshing, setRefreshing] = useState(false);
 
-export default function TabOneScreen() {
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    // TODO: Fetch feed data
+    setTimeout(() => setRefreshing(false), 1000);
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
-    </View>
+    <ScrollView
+      className="flex-1 bg-white"
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
+      <View className="px-4 pt-6 pb-4">
+        <Text className="text-2xl font-bold text-gray-900">
+          Welcome{user?.firstName ? `, ${user.firstName}` : ''}! 👋
+        </Text>
+        <Text className="text-gray-500 mt-1">Your community feed</Text>
+      </View>
+
+      {/* Empty state */}
+      <View className="flex-1 items-center justify-center px-8 py-20">
+        <Text className="text-6xl mb-4">📱</Text>
+        <Text className="text-xl font-semibold text-gray-900 text-center">
+          Your feed is empty
+        </Text>
+        <Text className="text-gray-500 text-center mt-2">
+          Join a community to see posts, updates, and discussions here.
+        </Text>
+      </View>
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-});
